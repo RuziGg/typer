@@ -106,6 +106,26 @@ TYPER.prototype = {
 		xmlhttp.send();
 	}, // loadWords end
 
+  save: function() {
+      console.log('salvestan');
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        console.log(xhttp.readyState);
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+
+        console.log(xhttp.responseText);
+        TYPER.instance_.guessed_words = 0;
+        TYPER.instance_.start();
+
+
+      }
+    };
+  // päringu tegemine
+    xhttp.open("GET", "saveData.php?p_name="+this.player.name+"&guessed_words=" +this.guessed_words, true);
+    xhttp.send();
+    console.log('salvestan2');
+  },
+
 	start: function(){
 
 		// Tekitame sõna objekti Word
@@ -113,12 +133,35 @@ TYPER.prototype = {
 		//console.log(this.word);
 
         //joonista sõna
-		this.word.Draw();
+		this.word.Draw(this.guessed_words);
 
 		// Kuulame klahvivajutusi
 		window.addEventListener('keypress', this.keyPressed.bind(this));
 
-	}, //start end
+    setTimeout(function(){
+
+
+
+        TYPER.instance_.word.Draw(0);
+
+        alert("Aeg läbi");
+        TYPER.instance_.save();
+        //Salvestan serverisse
+
+
+
+
+
+
+    }, 2000);
+        /*this.guessed_words = 0;
+        this.ctx.textAlign = 'left';
+    		this.ctx.font = '20px Courier';
+        this.ctx.fillText("Punktid: "+score,100,100);*/
+
+	},
+ //start end
+
     generateWord: function(){
 
         // kui pikk peab sõna tulema, + min pikkus + äraarvatud sõnade arvul jääk 5 jagamisel
@@ -160,7 +203,7 @@ TYPER.prototype = {
 			}
 
 			//joonistan uuesti
-			this.word.Draw();
+			this.word.Draw(this.guessed_words);
 		}
 
 	} // keypress end
@@ -180,7 +223,7 @@ function Word(word, canvas, ctx){
 }
 
 Word.prototype = {
-	Draw: function(){
+	Draw: function(score){
 
 		//Tühjendame canvase
 		this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height);
@@ -191,6 +234,10 @@ Word.prototype = {
 
 		// 	// Joonistame sõna, mis on järel / tekst, x, y
 		this.ctx.fillText(this.left, this.canvas.width/2, this.canvas.height/2);
+
+    this.ctx.textAlign = 'left';
+		this.ctx.font = '20px Courier';
+    this.ctx.fillText("Punktid: "+score,100,100);
 	},
 
 	// Võtame sõnast esimese tähe maha
